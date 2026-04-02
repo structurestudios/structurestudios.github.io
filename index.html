@@ -4,7 +4,9 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Structure Studios</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;700&display=swap" rel="stylesheet">
+
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+
   <style>
     * {
       margin: 0;
@@ -21,41 +23,57 @@
     header {
       display: flex;
       justify-content: space-between;
-      padding: 20px 40px;
-      font-weight: 500;
+      padding: 25px 50px;
+      position: fixed;
+      width: 100%;
+      top: 0;
+      background: rgba(0,0,0,0.6);
+      backdrop-filter: blur(10px);
+      z-index: 1000;
+    }
+
+    header div {
+      font-weight: 800;
       letter-spacing: 2px;
     }
 
     header a {
       color: white;
       text-decoration: none;
-      margin-left: 20px;
+      margin-left: 25px;
       font-size: 14px;
+      opacity: 0.8;
+    }
+
+    header a:hover {
+      opacity: 1;
     }
 
     .hero {
-      height: 90vh;
+      height: 100vh;
+      background: url('https://images.unsplash.com/photo-1516822003754-cca485356ecb') center/cover no-repeat;
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
       text-align: center;
-      background: url('https://images.unsplash.com/photo-1520975916090-3105956dac38') center/cover;
+      padding-top: 80px;
     }
 
     .hero h1 {
-      font-size: 48px;
-      margin-bottom: 10px;
-      letter-spacing: 3px;
+      font-size: 60px;
+      letter-spacing: 4px;
     }
 
     .hero p {
+      margin-top: 10px;
       opacity: 0.7;
-      margin-bottom: 20px;
+      letter-spacing: 1px;
     }
 
     .btn {
-      padding: 12px 30px;
+      margin-top: 25px;
+      padding: 14px 40px;
       background: white;
       color: black;
       text-decoration: none;
@@ -64,41 +82,62 @@
     }
 
     .btn:hover {
-      background: #ccc;
+      background: #ddd;
     }
 
     .section {
-      padding: 80px 40px;
-      text-align: center;
+      padding: 120px 60px;
+    }
+
+    .section h2 {
+      font-size: 28px;
+      margin-bottom: 40px;
+      letter-spacing: 2px;
     }
 
     .products {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 30px;
-      margin-top: 40px;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 40px;
     }
 
     .product {
       background: #111;
       padding: 20px;
-      transition: 0.3s;
+      transition: 0.4s;
     }
 
     .product:hover {
-      transform: translateY(-5px);
+      transform: translateY(-10px);
     }
 
     .product img {
       width: 100%;
-      height: 200px;
+      height: 300px;
       object-fit: cover;
       margin-bottom: 15px;
     }
 
+    .lookbook {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    }
+
+    .lookbook img {
+      width: 100%;
+      height: 400px;
+      object-fit: cover;
+    }
+
+    .about {
+      max-width: 700px;
+      line-height: 1.6;
+      opacity: 0.8;
+    }
+
     footer {
       text-align: center;
-      padding: 30px;
+      padding: 40px;
       font-size: 12px;
       opacity: 0.5;
     }
@@ -111,36 +150,51 @@
   <div>STRUCTURE</div>
   <nav>
     <a href="#">Shop</a>
+    <a href="#">Lookbook</a>
     <a href="#">About</a>
-    <a href="#">Contact</a>
   </nav>
 </header>
 
 <section class="hero">
   <h1>STRUCTURE STUDIOS</h1>
-  <p>Built Different</p>
-  <a href="#" class="btn">Shop Now</a>
+  <p>BUILT DIFFERENT</p>
+  <a href="#" class="btn">SHOP NOW</a>
 </section>
 
 <section class="section">
-  <h2>Featured</h2>
+  <h2>FEATURED</h2>
 
   <div class="products">
     <div class="product">
       <img src="https://images.unsplash.com/photo-1600185365483-26d7a4cc7519">
-      <p>Black Skull Cap</p>
+      <p>BLACK CAP</p>
     </div>
 
     <div class="product">
       <img src="https://images.unsplash.com/photo-1585386959984-a415522316c3">
-      <p>White Skull Cap</p>
+      <p>WHITE CAP</p>
     </div>
 
     <div class="product">
       <img src="https://images.unsplash.com/photo-1520975922203-bc55c28f3d57">
-      <p>Purple Skull Cap</p>
+      <p>PURPLE CAP</p>
     </div>
   </div>
+</section>
+
+<section class="lookbook">
+  <img src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d">
+  <img src="https://images.unsplash.com/photo-1503342217505-b0a15ec3261c">
+  <img src="https://images.unsplash.com/photo-1520975922203-bc55c28f3d57">
+</section>
+
+<section class="section">
+  <h2>ABOUT</h2>
+  <p class="about">
+    Structure Studios is built on discipline, movement, and identity.
+    Every piece is designed to move with you — on and off the field.
+    This isn’t just apparel. This is structure.
+  </p>
 </section>
 
 <footer>
