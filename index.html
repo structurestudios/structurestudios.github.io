@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Structure Studios</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;700&display=swap" rel="stylesheet">
 
 <style>
 * {
@@ -13,10 +13,6 @@
   padding: 0;
   box-sizing: border-box;
   font-family: 'Inter', sans-serif;
-}
-
-html {
-  scroll-behavior: smooth;
 }
 
 body {
@@ -28,25 +24,29 @@ body {
 /* NAV */
 header {
   position: fixed;
-  width: 100%;
-  padding: 20px 50px;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 90%;
+  padding: 15px 30px;
   display: flex;
   justify-content: space-between;
-  background: rgba(0,0,0,0.5);
-  backdrop-filter: blur(12px);
+  border-radius: 50px;
+  background: rgba(255,255,255,0.05);
+  backdrop-filter: blur(20px);
   z-index: 1000;
 }
 
 header div {
-  font-weight: 800;
+  font-weight: 600;
   letter-spacing: 2px;
 }
 
 header a {
   color: white;
   text-decoration: none;
-  margin-left: 25px;
-  font-size: 14px;
+  margin-left: 20px;
+  font-size: 13px;
   opacity: 0.7;
   transition: 0.3s;
 }
@@ -60,111 +60,135 @@ header a:hover {
   height: 100vh;
   background: url('https://images.unsplash.com/photo-1516822003754-cca485356ecb') center/cover no-repeat;
   display: flex;
-  justify-content: center;
   align-items: center;
+  justify-content: center;
   text-align: center;
+  position: relative;
+}
+
+.hero::after {
+  content: "";
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(to bottom, rgba(0,0,0,0.2), #000);
 }
 
 .hero-content {
+  position: relative;
+  z-index: 2;
   animation: fadeUp 1s ease forwards;
 }
 
 .hero h1 {
   font-size: 64px;
-  letter-spacing: 5px;
+  font-weight: 500;
+  letter-spacing: 6px;
 }
 
 .hero p {
-  opacity: 0.7;
   margin-top: 10px;
+  opacity: 0.6;
+  font-size: 14px;
+  letter-spacing: 2px;
 }
 
 .btn {
   display: inline-block;
-  margin-top: 25px;
-  padding: 14px 40px;
+  margin-top: 30px;
+  padding: 14px 36px;
+  border-radius: 30px;
   background: white;
   color: black;
   text-decoration: none;
-  font-weight: 600;
+  font-weight: 500;
   transition: 0.3s;
 }
 
 .btn:hover {
+  transform: translateY(-2px);
   background: #ddd;
-  transform: scale(1.05);
 }
 
-/* SECTIONS */
+/* SECTION */
 .section {
-  padding: 120px 60px;
-}
-
-.section h2 {
-  margin-bottom: 40px;
-  letter-spacing: 2px;
+  padding: 140px 8%;
 }
 
 /* PRODUCTS */
 .products {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 40px;
+  gap: 50px;
 }
 
 .product {
-  background: #111;
+  border-radius: 20px;
   overflow: hidden;
-  transition: 0.4s;
+  position: relative;
 }
 
 .product img {
   width: 100%;
-  height: 320px;
+  height: 340px;
   object-fit: cover;
-  transition: 0.4s;
+  transition: 0.5s;
 }
 
 .product:hover img {
-  transform: scale(1.1);
+  transform: scale(1.08);
+}
+
+.product::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,0.7), transparent);
 }
 
 .product p {
-  padding: 15px;
+  position: absolute;
+  bottom: 15px;
+  left: 20px;
+  z-index: 2;
+  font-size: 14px;
+  letter-spacing: 1px;
 }
 
 /* LOOKBOOK */
 .lookbook {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 20px;
 }
 
 .lookbook img {
   width: 100%;
-  height: 400px;
+  height: 500px;
   object-fit: cover;
-  transition: 0.4s;
+  border-radius: 20px;
+  transition: 0.5s;
 }
 
 .lookbook img:hover {
-  transform: scale(1.05);
+  transform: scale(1.03);
 }
 
 /* ABOUT */
 .about {
   max-width: 600px;
-  line-height: 1.6;
-  opacity: 0.8;
+  line-height: 1.7;
+  opacity: 0.7;
+  font-size: 15px;
 }
 
 /* FOOTER */
 footer {
   text-align: center;
-  padding: 40px;
-  opacity: 0.5;
+  padding: 60px;
+  opacity: 0.4;
 }
 
-/* ANIMATION */
+/* ANIMATIONS */
 @keyframes fadeUp {
   from {
     opacity: 0;
@@ -176,11 +200,11 @@ footer {
   }
 }
 
-/* SCROLL FADE */
+/* FADE ON SCROLL */
 .fade {
   opacity: 0;
   transform: translateY(40px);
-  transition: 0.8s;
+  transition: 1s;
 }
 
 .fade.show {
@@ -190,16 +214,16 @@ footer {
 
 /* MOBILE */
 @media(max-width: 768px){
-  header {
-    padding: 15px 20px;
-  }
-
   .hero h1 {
     font-size: 40px;
   }
 
+  header {
+    width: 95%;
+  }
+
   .section {
-    padding: 80px 20px;
+    padding: 100px 20px;
   }
 }
 </style>
@@ -225,9 +249,8 @@ footer {
 </section>
 
 <section id="shop" class="section fade">
-  <h2>FEATURED</h2>
-
   <div class="products">
+
     <div class="product">
       <img src="https://images.unsplash.com/photo-1600185365483-26d7a4cc7519">
       <p>BLACK CAP</p>
@@ -242,21 +265,22 @@ footer {
       <img src="https://images.unsplash.com/photo-1520975922203-bc55c28f3d57">
       <p>PURPLE CAP</p>
     </div>
+
   </div>
 </section>
 
-<section id="look" class="lookbook fade">
-  <img src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d">
-  <img src="https://images.unsplash.com/photo-1503342217505-b0a15ec3261c">
-  <img src="https://images.unsplash.com/photo-1520975922203-bc55c28f3d57">
+<section id="look" class="section fade">
+  <div class="lookbook">
+    <img src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d">
+    <img src="https://images.unsplash.com/photo-1503342217505-b0a15ec3261c">
+  </div>
 </section>
 
 <section id="about" class="section fade">
-  <h2>ABOUT</h2>
   <p class="about">
     Structure Studios is built on discipline, movement, and identity.
-    Every piece is designed to move with you — on and off the field.
-    This is more than apparel. This is structure.
+    Designed for those who move with purpose.
+    This is structure.
   </p>
 </section>
 
