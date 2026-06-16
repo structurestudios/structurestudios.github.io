@@ -1,3 +1,4 @@
 __pycache__/
 *.pyc
 momentum_trades_R.csv
+universe_cache.pkl

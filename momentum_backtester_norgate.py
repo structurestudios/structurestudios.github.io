@@ -21,6 +21,8 @@ NOTE ON THE FREE TRIAL:
   years isn't enough to know an edge is durable across bull AND bear markets.
 """
 
+import pickle
+
 import numpy as np
 import pandas as pd
 import norgatedata
@@ -50,6 +52,9 @@ MAX_SYMBOLS = None          # set e.g. 300 to test a subset first; None = full u
 # set both to 0 for a gross/frictionless comparison.
 COST_BPS_PER_SIDE = 5.0
 SLIPPAGE_ATR = 0.05
+
+# Where to cache fetched OHLCV + the regime series, for offline sweeps.
+CACHE_FILE = "universe_cache.pkl"
 
 
 def fetch(symbol):
@@ -100,12 +105,16 @@ def main():
         symbols = symbols[:MAX_SYMBOLS]
     print(f"Universe has {len(symbols)} symbols (incl. delisted). Scanning...\n")
 
-    # 3) scan every symbol for the momentum setup
+    # 3) scan every symbol for the momentum setup, caching each frame as we go.
+    #    The cache lets the param/cost sweeps (momentum_lab.py) re-run offline
+    #    without re-hitting Norgate -- fetch once, analyze forever.
     all_R = []
+    cache = {}
     done = 0
     for sym in symbols:
         df = fetch(sym)
         if df is not None and len(df) > 80:
+            cache[sym] = df
             all_R += find_trades(df, regime,
                                  cost_bps_per_side=COST_BPS_PER_SIDE,
                                  slippage_atr=SLIPPAGE_ATR)
@@ -123,7 +132,14 @@ def main():
     if all_R:
         pd.DataFrame({"R": all_R}).to_csv("momentum_trades_R.csv", index=False)
         print("\nSaved per-trade R-multiples to momentum_trades_R.csv")
-        print("Next: run significance testing on these to see if it's real or luck.")
+
+    # 6) cache the raw data + regime so the lab can sweep params/costs offline
+    if cache:
+        with open(CACHE_FILE, "wb") as fh:
+            pickle.dump({"data": cache, "regime": regime}, fh)
+        print(f"Cached {len(cache)} symbols + regime to {CACHE_FILE}")
+        print("Next: python momentum_significance.py   (real or luck?)")
+        print("      python momentum_lab.py            (overfit & cost sweeps)")
 
 
 if __name__ == "__main__":

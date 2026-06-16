@@ -76,11 +76,19 @@ def regime_ok(index_df, ma=REGIME_MA):
 
 
 def find_trades(df, regime, cost_bps_per_side=COST_BPS_PER_SIDE,
-                slippage_atr=SLIPPAGE_ATR):
+                slippage_atr=SLIPPAGE_ATR, breakout_lookback=BREAKOUT_LOOKBACK,
+                atr_length=ATR_LENGTH, atr_stop_mult=ATR_STOP_MULT,
+                atr_trail_mult=ATR_TRAIL_MULT):
     """Scan one symbol for breakout trades; return a list of NET R-multiples.
 
     One position at a time. Any position still open at the end of the data is
     closed at the final close (no peeking, no free ride).
+
+    Strategy params (exposed so robustness sweeps can vary them):
+      breakout_lookback  enter on a close above this prior-day high.
+      atr_length         ATR period for stops.
+      atr_stop_mult      initial stop = entry - mult*ATR (defines 1R).
+      atr_trail_mult     trailing stop = highest-high-since-entry - mult*ATR.
 
     Costs (set both to 0 for a gross/frictionless run):
       cost_bps_per_side  commission + half-spread, basis points of fill price.
@@ -94,9 +102,9 @@ def find_trades(df, regime, cost_bps_per_side=COST_BPS_PER_SIDE,
     close = df["close"]
     high = df["high"]
     low = df["low"]
-    atr = _atr(df)
+    atr = _atr(df, atr_length)
     # prior N-day high (shifted so today's bar can't see its own high)
-    breakout_level = close.rolling(BREAKOUT_LOOKBACK).max().shift(1)
+    breakout_level = close.rolling(breakout_lookback).max().shift(1)
 
     # align the market-regime filter onto this symbol's calendar
     reg = regime.reindex(df.index).ffill().fillna(False)
@@ -125,7 +133,7 @@ def find_trades(df, regime, cost_bps_per_side=COST_BPS_PER_SIDE,
             # ENTRY: market risk-on AND a fresh breakout close
             if bool(reg.iloc[i]) and c > bl:
                 entry = c
-                stop = entry - ATR_STOP_MULT * a
+                stop = entry - atr_stop_mult * a
                 risk = entry - stop
                 if risk <= 0:
                     continue
@@ -135,7 +143,7 @@ def find_trades(df, regime, cost_bps_per_side=COST_BPS_PER_SIDE,
         else:
             # MANAGE: ratchet the trailing stop up, never down
             trail_high = max(trail_high, high.iloc[i])
-            stop = max(stop, trail_high - ATR_TRAIL_MULT * a)
+            stop = max(stop, trail_high - atr_trail_mult * a)
             # EXIT: intrabar low takes out the stop -> fill at the stop
             if low.iloc[i] <= stop:
                 R.append(net_R(entry, stop, risk, atr_at_entry))
