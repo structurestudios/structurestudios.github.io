@@ -1,0 +1,33 @@
+name: momentum-tests
+
+# Verify the backtester engine on every push/PR that touches the Python code.
+# norgatedata is deliberately excluded -- it needs a live data subscription, and
+# the test suite runs entirely on synthetic/offline data.
+on:
+  push:
+    paths:
+      - "momentum_*.py"
+      - "test_momentum.py"
+      - "requirements.txt"
+      - ".github/workflows/momentum-tests.yml"
+  pull_request:
+    paths:
+      - "momentum_*.py"
+      - "test_momentum.py"
+      - "requirements.txt"
+      - ".github/workflows/momentum-tests.yml"
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install analysis stack
+        run: python -m pip install --upgrade pip numpy pandas pytest
+      - name: Run test suite
+        run: pytest -q
+      - name: Smoke-test the lab on the synthetic universe
+        run: python momentum_lab.py
