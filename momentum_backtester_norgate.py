@@ -44,6 +44,13 @@ PRICE_ADJ = norgatedata.StockPriceAdjustmentType.CAPITAL  # split-adjusted, not 
 PADDING = norgatedata.PaddingType.NONE
 MAX_SYMBOLS = None          # set e.g. 300 to test a subset first; None = full universe
 
+# Transaction costs charged per side (see momentum_backtester.py). These names
+# include delisted small caps, where fills are worse -- so the 5 bps / 0.05 ATR
+# defaults are a floor. Raise them to see how fast the "edge" survives friction;
+# set both to 0 for a gross/frictionless comparison.
+COST_BPS_PER_SIDE = 5.0
+SLIPPAGE_ATR = 0.05
+
 
 def fetch(symbol):
     """Pull one symbol's OHLCV as a clean lowercase-column DataFrame, or None."""
@@ -71,7 +78,9 @@ def fetch(symbol):
 def main():
     print(f"Norgate status: {norgatedata.status()}")
     print(f"Universe watchlist: {WATCHLIST}")
-    print(f"Regime index: {INDEX_SYMBOL}\n")
+    print(f"Regime index: {INDEX_SYMBOL}")
+    print(f"Costs: {COST_BPS_PER_SIDE} bps/side + {SLIPPAGE_ATR} ATR slippage/side "
+          f"(net R-multiples)\n")
 
     # 1) build the market-regime filter from the index
     idx = fetch(INDEX_SYMBOL)
@@ -97,7 +106,9 @@ def main():
     for sym in symbols:
         df = fetch(sym)
         if df is not None and len(df) > 80:
-            all_R += find_trades(df, regime)
+            all_R += find_trades(df, regime,
+                                 cost_bps_per_side=COST_BPS_PER_SIDE,
+                                 slippage_atr=SLIPPAGE_ATR)
         done += 1
         if done % 250 == 0:
             print(f"  ...{done}/{len(symbols)} symbols scanned, "

@@ -38,6 +38,20 @@ ATR_TRAIL_MULT    = 3.0     # trailing stop = highest-high-since-entry - 3*ATR
 REGIME_MA         = 50      # index uptrend = close above its 50-day average
 MIN_BARS          = 80      # need enough history for lookbacks to warm up
 
+# ---- TRANSACTION COSTS (the honesty knob) ----
+# Real fills are worse than the close you backtest on. We charge two things,
+# PER SIDE (entry and exit), so a round trip pays each twice:
+#   COST_BPS_PER_SIDE: commission + half the bid/ask spread, in basis points
+#       of the trade price. 5 bps/side ~= 0.10% round trip -- modest for liquid
+#       names, optimistic for the small/illiquid/delisted ones in a broad
+#       "Current & Past" universe, so treat it as a floor and raise it to probe.
+#   SLIPPAGE_ATR: extra adverse fill (you buy higher, sell lower) expressed in
+#       units of the entry ATR. Scales cost with volatility, which is realistic.
+# Costs are converted to an R haircut using each trade's OWN risk, so tight-stop
+# trades are penalized more in R than wide-stop trades -- exactly as in reality.
+COST_BPS_PER_SIDE = 5.0
+SLIPPAGE_ATR      = 0.05
+
 
 def _atr(df, length=ATR_LENGTH):
     """Wilder-style ATR via a simple rolling mean of True Range."""
@@ -61,11 +75,18 @@ def regime_ok(index_df, ma=REGIME_MA):
     return (close > sma).fillna(False)
 
 
-def find_trades(df, regime):
-    """Scan one symbol for breakout trades; return a list of R-multiples.
+def find_trades(df, regime, cost_bps_per_side=COST_BPS_PER_SIDE,
+                slippage_atr=SLIPPAGE_ATR):
+    """Scan one symbol for breakout trades; return a list of NET R-multiples.
 
     One position at a time. Any position still open at the end of the data is
     closed at the final close (no peeking, no free ride).
+
+    Costs (set both to 0 for a gross/frictionless run):
+      cost_bps_per_side  commission + half-spread, basis points of fill price.
+      slippage_atr       adverse fill per side, in units of the entry ATR.
+    Each is charged on entry and on exit, then divided by the trade's risk to
+    become an R haircut.
     """
     if df is None or len(df) < MIN_BARS:
         return []
@@ -80,9 +101,17 @@ def find_trades(df, regime):
     # align the market-regime filter onto this symbol's calendar
     reg = regime.reindex(df.index).ffill().fillna(False)
 
+    bps = cost_bps_per_side / 10000.0  # basis points -> fraction of price
+
+    def net_R(entry, exit_price, risk, atr_at_entry):
+        """Gross R minus round-trip costs, expressed in R of the trade's risk."""
+        # commission/spread on each leg's notional + slippage on each leg
+        cost = bps * (entry + exit_price) + 2.0 * slippage_atr * atr_at_entry
+        return (exit_price - entry - cost) / risk
+
     R = []
     in_pos = False
-    entry = stop = risk = trail_high = 0.0
+    entry = stop = risk = trail_high = atr_at_entry = 0.0
 
     for i in range(len(df)):
         a = atr.iloc[i]
@@ -100,6 +129,7 @@ def find_trades(df, regime):
                 risk = entry - stop
                 if risk <= 0:
                     continue
+                atr_at_entry = a
                 trail_high = high.iloc[i]
                 in_pos = True
         else:
@@ -108,12 +138,12 @@ def find_trades(df, regime):
             stop = max(stop, trail_high - ATR_TRAIL_MULT * a)
             # EXIT: intrabar low takes out the stop -> fill at the stop
             if low.iloc[i] <= stop:
-                R.append((stop - entry) / risk)
+                R.append(net_R(entry, stop, risk, atr_at_entry))
                 in_pos = False
 
     # force-close any open trade at the last available close
     if in_pos:
-        R.append((close.iloc[-1] - entry) / risk)
+        R.append(net_R(entry, close.iloc[-1], risk, atr_at_entry))
 
     return R
 
