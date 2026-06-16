@@ -1,0 +1,10 @@
+# Core analysis stack (used by every script).
+numpy
+pandas
+
+# Test suite.
+pytest
+
+# Data adapter ONLY (momentum_backtester_norgate.py). Requires a running
+# Norgate Data Updater + a subscription/trial. Everything else runs without it.
+norgatedata
